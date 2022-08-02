@@ -36,16 +36,16 @@ const renderMarkupGallery = galleryArr => {
   <img src="${img.webformatURL}" alt="" loading="lazy" />
   <div class="info">
     <p class="info-item">
-      <b>${img.likes}Likes</b>
+      <b>${img.likes} Likes</b>
     </p>
     <p class="info-item">
-      <b>${img.views}Views</b>
+      <b>${img.views} Views</b>
     </p>
     <p class="info-item">
-      <b>${img.comments}Comments</b>
+      <b>${img.comments} Comments</b>
     </p>
     <p class="info-item">
-      <b>${img.downloads}Downloads</b>
+      <b>${img.downloads} Downloads</b>
     </p>
   </div>
 </div>
