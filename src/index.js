@@ -1,3 +1,5 @@
+import SimpleLightbox from 'simplelightbox';
+
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '28999251-52156a0b70764a414979b8adf';
 
@@ -14,7 +16,10 @@ const startSearch = event => {
   event.preventDefault();
   query = refs.searchInputEl.value;
   console.log(refs.searchInputEl.value);
-  fetchPics(query).then(renderMarkupGallery).then(addGallery);
+  fetchPics(query)
+    .then(renderMarkupGallery)
+    .then(addGallery)
+    .then(createGallery);
 };
 
 refs.btnSearchEl.addEventListener('click', startSearch);
@@ -32,7 +37,7 @@ const renderMarkupGallery = galleryArr => {
   return galleryArr
     .map(img => {
       return `
-        <div class="photo-card">
+        <a href="${img.largeImageURL}">
   <img src="${img.webformatURL}" alt="" loading="lazy" />
   <div class="info">
     <p class="info-item">
@@ -48,7 +53,7 @@ const renderMarkupGallery = galleryArr => {
       <b>${img.downloads} Downloads</b>
     </p>
   </div>
-</div>
+</a>
       `;
     })
     .join('');
@@ -57,4 +62,14 @@ const renderMarkupGallery = galleryArr => {
 const addGallery = markupGallery => {
   refs.galleryEl.innerHTML = '';
   refs.galleryEl.insertAdjacentHTML('beforeend', markupGallery);
+};
+
+const createGallery = () => {
+  const lightbox = new SimpleLightbox('.gallery a', {
+    captionsData: 'alt',
+    captionPosition: 'bottom',
+    captionDelay: 250,
+  });
+
+  lightbox.on('show.simplelightbox');
 };
