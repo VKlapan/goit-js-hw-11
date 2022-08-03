@@ -5,32 +5,25 @@ const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '28999251-52156a0b70764a414979b8adf';
 const PARAMS = 'image_type=photo&orientation=horizontal&safesearch=true';
 
-let query = '';
 const formEl = document.querySelector('#search-form');
-
 const refs = {
   searchInputEl: formEl.querySelector('input'),
   btnSearchEl: formEl.querySelector('button'),
   galleryEl: document.querySelector('.gallery'),
+  btnMoreEl: document.querySelector('.load-more'),
 };
 
-const startSearch = event => {
-  event.preventDefault();
-  query = refs.searchInputEl.value;
-  console.log(refs.searchInputEl.value);
-  fetchPics(query)
-    .then(renderMarkupGallery)
-    .then(addGallery)
-    .then(createGallery);
-};
+const offReadMoreBtn = () => refs.btnMoreEl.classList.add('invisible');
+const onReadMoreBtn = () => refs.btnMoreEl.classList.remove('invisible');
 
-refs.btnSearchEl.addEventListener('click', startSearch);
+let query = '';
+let currentPage = 1;
 
-console.log(query);
+offReadMoreBtn();
 
 const fetchPics = query => {
   return fetch(
-    `${BASE_URL}?key=${API_KEY}&q=${query}&${PARAMS}&page=1&per_page=40`
+    `${BASE_URL}?key=${API_KEY}&q=${query}&${PARAMS}&page=${currentPage}&per_page=40`
   )
     .then(r => r.json())
     .then(r => r.hits)
@@ -38,7 +31,7 @@ const fetchPics = query => {
 };
 
 const renderMarkupGallery = galleryArr => {
-  return galleryArr
+  const markupGallery = galleryArr
     .map(img => {
       return `
   <div class="photo-card">
@@ -63,11 +56,13 @@ const renderMarkupGallery = galleryArr => {
       `;
     })
     .join('');
+  currentPage += 1;
+  return markupGallery;
 };
 
 const addGallery = markupGallery => {
-  refs.galleryEl.innerHTML = '';
   refs.galleryEl.insertAdjacentHTML('beforeend', markupGallery);
+  onReadMoreBtn();
 };
 
 const createGallery = () => {
@@ -79,3 +74,25 @@ const createGallery = () => {
 
   lightbox.on('show.simplelightbox');
 };
+
+const startSearch = event => {
+  event.preventDefault();
+  refs.galleryEl.innerHTML = '';
+  query = refs.searchInputEl.value;
+  console.log(refs.searchInputEl.value);
+
+  fetchPics(query)
+    .then(renderMarkupGallery)
+    .then(addGallery)
+    .then(createGallery);
+};
+
+const loadMore = () => {
+  fetchPics(query)
+    .then(renderMarkupGallery)
+    .then(addGallery)
+    .then(createGallery);
+};
+
+refs.btnSearchEl.addEventListener('click', startSearch);
+refs.btnMoreEl.addEventListener('click', loadMore);
