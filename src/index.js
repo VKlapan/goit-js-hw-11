@@ -1,6 +1,7 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { Notify } from 'notiflix';
+import axios from 'axios';
 
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '28999251-52156a0b70764a414979b8adf';
@@ -143,47 +144,16 @@ refs.btnSearchEl.addEventListener('click', startSearch);
 refs.btnMoreEl.addEventListener('click', loadMore);
 
 // -------------------------------------------------------------------
+const getHitsArr = async query => {
+  const hitsArr = await axios
+    .get(
+      `${BASE_URL}?key=${API_KEY}&q=${query}&${PARAMS}&page=${currentPage}&per_page=${per_page}`
+    )
+    .then(r => {
+      return r.data.hits;
+    });
 
-// const renderMarkupGalleryOld = galleryArr => {
-//   const markupGallery = galleryArr
-//     .map(img => {
-//       return `
-//   <div class="photo-card">
-//        <a href="${img.largeImageURL}">
-//         <img class="gallery__image" src="${img.webformatURL}" alt="" loading="lazy" />
-//         </a>
-//       <div class="info">
-//             <p class="info-item">
-//                 <b>Likes<br>${img.likes}</b>
-//             </p>
-//             <p class="info-item">
-//             <b>Views<br>${img.views}</b>
-//             </p>
-//             <p class="info-item">
-//             <b>Comments<br>${img.comments}</b>
-//             </p>
-//             <p class="info-item">
-//             <b>Downloads<br>${img.downloads}</b>
-//             </p>
-//       </div>
-//   </div>
-//       `;
-//     })
-//     .join('');
-//   currentPage += 1;
-//   return markupGallery;
-// };
+  return hitsArr;
+};
 
-// const addGalleryOld = markupGallery => {
-//   refs.galleryEl.insertAdjacentHTML('beforeend', markupGallery);
-//   onReadMoreBtn();
-// };
-
-//   const fetchPicsOld = query => {
-//     return fetch(
-//       `${BASE_URL}?key=${API_KEY}&q=${query}&${PARAMS}&page=${currentPage}&${per_page}`
-//     )
-//       .then(r => r.json())
-//       .then(r => r.hits)
-//       .catch(console.log);
-//   };
+getHitsArr('waterproof').then(console.log);
