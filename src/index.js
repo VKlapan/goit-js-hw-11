@@ -1,5 +1,6 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { Notify } from 'notiflix';
 
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '28999251-52156a0b70764a414979b8adf';
@@ -24,7 +25,7 @@ const onNoMorePagesMessage = () =>
 
 let query = '';
 const per_page = 40;
-let currentPage = null;
+let currentPage = 1;
 
 offReadMoreBtn();
 offNoMorePagesMessage();
@@ -37,7 +38,9 @@ const fetchPics = query => {
     .then(r => {
       const hitsArr = r.hits;
       if (hitsArr.length === 0) {
-        return Promise.reject('not found');
+        return Promise.reject(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
       } else {
         return {
           galleryArr: hitsArr,
@@ -46,7 +49,11 @@ const fetchPics = query => {
       }
     });
 };
+
 const renderMarkupGallery = ({ galleryArr, totalHits }) => {
+  if (currentPage === 1) {
+    Notify.success(`Hoooray! We found ${totalHits} images!`);
+  }
   const markupGallery = galleryArr
     .map(img => {
       return `
@@ -72,8 +79,15 @@ const renderMarkupGallery = ({ galleryArr, totalHits }) => {
       `;
     })
     .join('');
+  console.log(currentPage * per_page);
+  console.log(totalHits);
+  console.log(totalHits % per_page);
+
+  const isLastRender =
+    currentPage * per_page - totalHits >= totalHits % per_page;
+
   currentPage += 1;
-  const isLastRender = currentPage > Math.floor(totalHits / per_page);
+
   return { isLastRender, markupGallery };
 };
 
@@ -96,6 +110,8 @@ const createGallery = () => {
   lightbox.on('show.simplelightbox');
 };
 
+const showErrors = error => Notify.failure(error);
+
 const startSearch = event => {
   event.preventDefault();
   currentPage = 1;
@@ -109,15 +125,18 @@ const startSearch = event => {
   fetchPics(query)
     .then(renderMarkupGallery)
     .then(addGallery)
-    .then(createGallery);
+    .then(createGallery)
+    .catch(showErrors);
 };
 
 const loadMore = () => {
   offReadMoreBtn();
+
   fetchPics(query)
     .then(renderMarkupGallery)
     .then(addGallery)
-    .then(createGallery);
+    .then(createGallery)
+    .catch(showErrors);
 };
 
 refs.btnSearchEl.addEventListener('click', startSearch);
