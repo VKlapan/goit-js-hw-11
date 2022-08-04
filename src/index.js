@@ -145,13 +145,11 @@ refs.btnMoreEl.addEventListener('click', loadMore);
 
 // -------------------------------------------------------------------
 const getHitsArr = async query => {
-  const hitsArr = await axios
-    .get(
-      `${BASE_URL}?key=${API_KEY}&q=${query}&${PARAMS}&page=${currentPage}&per_page=${per_page}`
-    )
-    .then(r => {
-      return r.data.hits;
-    });
+  const response = await axios.get(
+    `${BASE_URL}?key=${API_KEY}&q=${query}&${PARAMS}&page=${currentPage}&per_page=${per_page}`
+  );
+
+  const hitsArr = await response.data.hits;
 
   return hitsArr;
 };
