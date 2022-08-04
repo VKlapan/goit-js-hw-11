@@ -2,6 +2,7 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { Notify } from 'notiflix';
 import axios from 'axios';
+import simpleLightbox from 'simplelightbox';
 
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '28999251-52156a0b70764a414979b8adf';
@@ -60,7 +61,7 @@ const renderMarkupGallery = ({ galleryArr, totalHits }) => {
       return `
   <div class="photo-card">
        <a href="${img.largeImageURL}">
-        <img class="gallery__image" src="${img.webformatURL}" alt="" loading="lazy" />
+        <img class="gallery__image" src="${img.webformatURL}" alt="${img.tags}" loading="lazy" />
         </a>
       <div class="info">
             <p class="info-item">
@@ -80,9 +81,6 @@ const renderMarkupGallery = ({ galleryArr, totalHits }) => {
       `;
     })
     .join('');
-  console.log(currentPage * per_page);
-  console.log(totalHits);
-  console.log(totalHits % per_page);
 
   const isLastRender =
     currentPage * per_page - totalHits >= totalHits % per_page;
@@ -99,6 +97,15 @@ const addGallery = ({ isLastRender, markupGallery }) => {
   } else {
     onNoMorePagesMessage();
   }
+
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 11,
+    behavior: 'smooth',
+  });
 };
 
 const createGallery = () => {
@@ -155,3 +162,9 @@ const getHitsArr = async query => {
 };
 
 getHitsArr('waterproof').then(console.log);
+
+// add using axios
+// add async / await
+// check using refresh() at simpleLightbox
+// try to add scroll
+// try to smooth use
