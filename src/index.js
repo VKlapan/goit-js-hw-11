@@ -32,6 +32,7 @@ let query = '';
 const per_page = 40;
 let currentPage = 1;
 let url = '';
+let lightbox = null;
 
 getUrl();
 offReadMoreBtn();
@@ -93,14 +94,12 @@ const addGallery = ({ isLastRender, markupGallery }) => {
   });
 };
 
-const createGallery = () => {
-  const lightbox = new SimpleLightbox('.gallery a', {
+const createLightBox = () => {
+  lightbox = new SimpleLightbox('.gallery a', {
     captionsData: 'alt',
     captionPosition: 'bottom',
     captionDelay: 250,
   });
-
-  lightbox.on('show.simplelightbox');
 };
 
 const showGaleryPage = ({ galleryArr, totalHits }) => {
@@ -109,12 +108,11 @@ const showGaleryPage = ({ galleryArr, totalHits }) => {
     totalHits,
   });
   addGallery({ isLastRender, markupGallery });
-  createGallery();
 };
 
 const showErrors = error => Notify.failure(error);
 
-const startSearch = event => {
+const startSearch = async event => {
   event.preventDefault();
   currentPage = 1;
   offReadMoreBtn();
@@ -125,14 +123,19 @@ const startSearch = event => {
   refs.searchInputEl.value = '';
   getUrl();
 
-  getPics(url).then(showGaleryPage).catch(showErrors);
+  await getPics(url).then(showGaleryPage).catch(showErrors);
+
+  createLightBox();
+  lightbox.on('');
 };
 
-const loadMore = () => {
+const loadMore = async () => {
   offReadMoreBtn();
   getUrl();
 
-  getPics(url).then(showGaleryPage).catch(showErrors);
+  await getPics(url).then(showGaleryPage).catch(showErrors);
+
+  lightbox.refresh();
 };
 
 refs.btnSearchEl.addEventListener('click', startSearch);
@@ -140,5 +143,4 @@ refs.btnMoreEl.addEventListener('click', loadMore);
 
 // -------------------------------------------------------------------
 
-// check using refresh() at simpleLightbox
-// try to add scroll
+// try to add endless scroll
