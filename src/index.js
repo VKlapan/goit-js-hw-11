@@ -68,8 +68,16 @@ const renderMarkupGallery = ({ galleryArr, totalHits }) => {
     })
     .join('');
 
+  console.log(currentPage);
+  console.log(totalHits);
+  console.log(currentPage * per_page);
+  console.log(totalHits - currentPage * per_page);
+  console.log(totalHits % per_page);
+
+  console.log(totalHits - currentPage * per_page < totalHits % per_page);
+
   const isLastRender =
-    currentPage * per_page - totalHits >= totalHits % per_page;
+    totalHits - currentPage * per_page < totalHits % per_page;
 
   currentPage += 1;
 
