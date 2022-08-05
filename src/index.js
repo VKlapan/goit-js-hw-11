@@ -1,8 +1,7 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { Notify } from 'notiflix';
-import axios from 'axios';
-import simpleLightbox from 'simplelightbox';
+import { getPics } from './getPics';
 
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '28999251-52156a0b70764a414979b8adf';
@@ -25,32 +24,18 @@ const offNoMorePagesMessage = () =>
 const onNoMorePagesMessage = () =>
   refs.noMoreMessageEl.classList.remove('invisible');
 
+const getUrl = () => {
+  url = `${BASE_URL}?key=${API_KEY}&q=${query}&${PARAMS}&page=${currentPage}&per_page=${per_page}`;
+};
+
 let query = '';
 const per_page = 40;
 let currentPage = 1;
+let url = '';
 
+getUrl();
 offReadMoreBtn();
 offNoMorePagesMessage();
-
-const fetchPics = query => {
-  return fetch(
-    `${BASE_URL}?key=${API_KEY}&q=${query}&${PARAMS}&page=${currentPage}&per_page=${per_page}`
-  )
-    .then(r => r.json())
-    .then(r => {
-      const hitsArr = r.hits;
-      if (hitsArr.length === 0) {
-        return Promise.reject(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-      } else {
-        return {
-          galleryArr: hitsArr,
-          totalHits: r.totalHits,
-        };
-      }
-    });
-};
 
 const renderMarkupGallery = ({ galleryArr, totalHits }) => {
   if (currentPage === 1) {
@@ -118,6 +103,15 @@ const createGallery = () => {
   lightbox.on('show.simplelightbox');
 };
 
+const showGaleryPage = ({ galleryArr, totalHits }) => {
+  const { isLastRender, markupGallery } = renderMarkupGallery({
+    galleryArr,
+    totalHits,
+  });
+  addGallery({ isLastRender, markupGallery });
+  createGallery();
+};
+
 const showErrors = error => Notify.failure(error);
 
 const startSearch = event => {
@@ -128,43 +122,23 @@ const startSearch = event => {
 
   refs.galleryEl.innerHTML = '';
   query = refs.searchInputEl.value;
-  console.log(refs.searchInputEl.value);
+  refs.searchInputEl.value = '';
+  getUrl();
 
-  fetchPics(query)
-    .then(renderMarkupGallery)
-    .then(addGallery)
-    .then(createGallery)
-    .catch(showErrors);
+  getPics(url).then(showGaleryPage).catch(showErrors);
 };
 
 const loadMore = () => {
   offReadMoreBtn();
+  getUrl();
 
-  fetchPics(query)
-    .then(renderMarkupGallery)
-    .then(addGallery)
-    .then(createGallery)
-    .catch(showErrors);
+  getPics(url).then(showGaleryPage).catch(showErrors);
 };
 
 refs.btnSearchEl.addEventListener('click', startSearch);
 refs.btnMoreEl.addEventListener('click', loadMore);
 
 // -------------------------------------------------------------------
-const getHitsArr = async query => {
-  const response = await axios.get(
-    `${BASE_URL}?key=${API_KEY}&q=${query}&${PARAMS}&page=${currentPage}&per_page=${per_page}`
-  );
 
-  const hitsArr = await response.data.hits;
-
-  return hitsArr;
-};
-
-getHitsArr('waterproof').then(console.log);
-
-// add using axios
-// add async / await
 // check using refresh() at simpleLightbox
 // try to add scroll
-// try to smooth use
